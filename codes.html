@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="design.css">
+  <style>
+    
+    .table-container {
+      max-height: 330px; /* Set the maximum height for the table container */
+      overflow-y: auto; /* Add a vertical scroll bar when needed */
+    }
+
+    .table-navigation {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .table-navigation button {
+      margin: 0 5px;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="menu">
+    <input type="checkbox" id="menu-toggle" class="hidden">
+    <label for="menu-toggle" class="menu-button">
+      <img src="Menu.png" alt="Menu" class="menu-icon">
+    </label>
+    <div class="menu-options">
+      <a href="#">Daily Member Data</a>
+      <a href="#">Machine Status</a>
+      <a href="#">Membership Info</a>
+    </div>
+  </div>
+  <script src="script.js"></script>
+
+  <div class="box-container">
+    <div class="box box1">
+      <h2 style="margin-left: 30px; margin-top: -50px; line-height: 1px; font-size: 18px; position: fixed;">New User:John Doe</h2>
+      <p style="margin-left: 30px; margin-top: -3px; line-height: 1px; position: fixed;">Trifold gym</p>
+      <h4 style="margin-left: 30px; margin-top: 45px; font-size: 18px; line-height: 1px; position: fixed;"> Time:5:30</h4>
+      <img src="User Icon.png" alt="Icon" style="margin-left: -140px; margin-top: 20px; position: fixed;" , width="50px">
+    </div>
+
+    <div class="box box2">
+      <h2 style="margin-left: 30px; margin-top: -30px;font-size: 18px; position: fixed;"><b>Machine</b></h2>
+      <p style="margin-top: 20px; margin-left: 28px; position: fixed; line-height: 1px;">Lat Pull Down</p>
+      <img src="Machine Icon.png" alt="machine img" width="50px" , style="margin-left: -125px; margin-top: 3px; position: fixed;">
+    </div>
+
+    <div class="box box3">
+      <h2 style="margin-top: -30px; margin-left: 40px; font-size: 18px;">Loaded Weight</h2>
+      <p style="margin-top: 25px; margin-left: 30px; line-height: 1px; position: fixed; font-size: 18px;">150 kg</p>
+      <img src="Loaded_Weight.png" alt="loaded img" style="width: 50px; margin-left: -130px; margin-top: 5px; position: fixed;">
+    </div>
+
+    <div class="box box4">
+      <h2 style="margin-top: -30px; font-size: 18px; position: fixed;">Rep Count</h2>
+      <p style="font-size: 25px; margin-top: 30px; color: #3481b3;" ><b>9</b></p>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table id="myTable">
+      <tbody>
+        <!-- Table rows will be added dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-navigation">
+    <img src="left_arrow.png" alt="Previous" style="width: 50px; height: 50px; margin-top: 26%; margin-left: centre;" onclick="goToPreviousPage()">
+    <img src="right_arrow.png" alt="Next" style="width: 50px; height: 50px;" onclick="goToNextPage()">
+  </div>
+  <script>
+    let tableData = []; // Store the entire table data
+    let currentPage = 0; // Track the current page index
+
+    function formatTime(time) {
+      const date = new Date(time);
+      const hours = date.getUTCHours();
+      const minutes = date.getUTCMinutes();
+
+      return `${padZeroes(hours)}:${padZeroes(minutes)}`;
+    }
+
+    function padZeroes(num) {
+      return num.toString().padStart(2, "0");
+    }
+
+    function updateTablePage() {
+      const startIdx = currentPage * 11;
+      const endIdx = startIdx + 11;
+      const pageData = tableData.slice(startIdx, endIdx);
+
+      let tr = pageData.reduce((prev, cur) => {
+        let td = cur.map(e => `<td>${e}</td>`);
+        return prev + `<tr>${td.join("")}</tr>`;
+      }, "\r");
+      document.querySelector("#myTable tbody").innerHTML = tr;
+    }
+
+    function updateTable() {
+      fetch('https://script.google.com/macros/s/AKfycbyUpbMe7Sxuv80ohtYCMuSjBxhv6jzjw27KekHSWYJJr4fxy_4CA_E-OkOzJ7Yh8ST2/exec')
+        .then(res => res.json())
+        .then(data => {
+          tableData = data.content;
+          updateTablePage();
+        });
+    }
+
+    function goToPreviousPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        updateTablePage();
+      }
+    }
+
+    function goToNextPage() {
+      const totalPages = Math.ceil(tableData.length / 11);
+      if (currentPage < totalPages - 1) {
+        currentPage++;
+        updateTablePage();
+      }
+    }
+
+    // Update the table initially
+    updateTable();
+
+    // Set interval to update the table every 5 seconds (adjust as needed)
+    setInterval(updateTable, 5000);
+
+    // Event listeners for table navigation buttons
+    document.getElementById('prevButton').addEventListener('click', goToPreviousPage);
+    document.getElementById('nextButton').addEventListener('click', goToNextPage);
+  </script>
+</body>
+</html>
